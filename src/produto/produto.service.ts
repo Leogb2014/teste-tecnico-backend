@@ -20,14 +20,17 @@ export class ProdutoService {
   async criar(createProdutoDto: CreateProdutoDto): Promise<Produto> {
     const produto = await this.prisma.produto.create({ data: createProdutoDto })
     if(!produto){
-      throw new Error('Método não implementado.');
+      throw new Error('Nao foi possível adicionar o produto');
     }
     return produto;
   }
 
   async buscarPorId(id: number): Promise<Produto> {
-    //desenvolver método para retornar o produto do id informado, com os respectivos dados de operações
-    throw new Error('Método não implementado.');
+    const produto = await this.prisma.produto.findUnique({ where: { id }});
+    if(!produto){
+      throw new Error('O Produto não existe.');
+    }
+    return produto;
   }
 
   async atualizar(id: number, updateProdutoDto: UpdateProdutoDto): Promise<Produto> {
