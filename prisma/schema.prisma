@@ -1,0 +1,36 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./controle_estoque.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Produto {
+  id          Int       @default(autoincrement()) @id
+  nome        String    @unique
+  descricao   String?
+  precoCompra Float?
+  precoVenda  Float?
+  quantidade  Int?      @default(0)
+  status      Boolean   @default(true)
+
+  operacoes   Operacao[]
+  
+  @@map("produtos")
+}
+
+model Operacao {
+  id          Int       @default(autoincrement()) @id
+  data        DateTime? @default(now())
+  quantidade  Int
+  preco       Float     //preço correspondente a uma unidade
+  total       Float     //quantidade * preço
+  tipo        Int       //1 - compra, 2 - venda
+
+  produtoId   Int
+  produto     Produto   @relation(fields: [produtoId], references: [id])
+
+  @@map("operacoes")
+}
