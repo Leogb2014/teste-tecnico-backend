@@ -20,7 +20,7 @@ export class ProdutoService {
   async criar(createProdutoDto: CreateProdutoDto): Promise<Produto> {
     const produto = await this.prisma.produto.create({ data: createProdutoDto })
     if(!produto){
-      throw new Error('Nao foi possível adicionar o produto');
+      throw new InternalServerErrorException('Nao foi possível adicionar o produto');
     }
     return produto;
   }
@@ -28,7 +28,7 @@ export class ProdutoService {
   async buscarPorId(id: number): Promise<Produto> {
     const produto = await this.prisma.produto.findUnique({ where: { id }, include: { operacoes: true}});
     if(!produto){
-      throw new Error('Produto não existe.');
+      throw new InternalServerErrorException('Produto não existe.');
     }
     return produto;
   }
