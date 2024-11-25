@@ -18,8 +18,11 @@ export class ProdutoService {
   }
 
   async criar(createProdutoDto: CreateProdutoDto): Promise<Produto> {
-    //desenvolver método que cria um novo produto, retornando o produto criado
-    throw new Error('Método não implementado.');
+    const produto = await this.prisma.produto.create({ data: createProdutoDto });
+    if(!produto){
+      throw new InternalServerErrorException('Não foi possível adicionar o produto');
+    }
+    return produto;
   }
 
   async buscarPorId(id: number): Promise<Produto> {
