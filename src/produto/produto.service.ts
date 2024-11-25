@@ -34,8 +34,12 @@ export class ProdutoService {
   }
 
   async atualizar(id: number, updateProdutoDto: UpdateProdutoDto): Promise<Produto> {
-    //desenvolver método para atualizar os dados do produto do id informado, retornando o produto atualizado
-    throw new Error('Método não implementado.');
+    try {
+      const produto = await this.prisma.produto.update({ where: { id }, data: updateProdutoDto})
+      return produto;
+    } catch (error) {
+      throw new InternalServerErrorException('Não foi possível atualizar o produto');
+    }   
   }
 
   async desativar(id: number): Promise<Produto> {
