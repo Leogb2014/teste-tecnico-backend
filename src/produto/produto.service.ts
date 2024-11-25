@@ -26,8 +26,11 @@ export class ProdutoService {
   }
 
   async buscarPorId(id: number): Promise<Produto> {
-    //desenvolver método para retornar o produto do id informado, com os respectivos dados de operações
-    throw new Error('Método não implementado.');
+    const produto = await this.prisma.produto.findUnique({ where: { id }, include: { operacoes: true } });
+    if(!produto){
+      throw new InternalServerErrorException('Não foi possível buscar o produto.');
+    }
+    return produto;
   }
 
   async atualizar(id: number, updateProdutoDto: UpdateProdutoDto): Promise<Produto> {
