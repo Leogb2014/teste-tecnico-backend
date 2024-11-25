@@ -26,9 +26,9 @@ export class ProdutoService {
   }
 
   async buscarPorId(id: number): Promise<Produto> {
-    const produto = await this.prisma.produto.findUnique({ where: { id }});
+    const produto = await this.prisma.produto.findUnique({ where: { id }, include: { operacoes: true}});
     if(!produto){
-      throw new Error('O Produto não existe.');
+      throw new Error('Produto não existe.');
     }
     return produto;
   }
