@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -52,14 +52,27 @@ export class ProdutoService {
   }
 
   async comprarProdutos(id: number, compraProdutoDto: CompraProdutoDto): Promise<Operacao> {
+    const produto = await this.prisma.produto.findUnique({ where: { id, status: true} });
+    if(!produto) {
+      throw new InternalServerErrorException("Produto não encontrado");
+    }
     const tipo = 1;
-    //desenvolver método que executa a operação de compra, retornando a operação com os respectivos dados do produto
-    //tipo: 1 - compra, 2 - venda
-    //o preço de venda do produto deve ser calculado a partir do preço inserido na operacao, com uma margem de 50% de lucro
-    //caso o novo preço seja maior que o preço de venda atual, o preço de venda deve ser atualizado, assim como o preço de compra
-    //calcular o valor total gasto na compra (quantidade * preco)
-    //deve também atualizar a quantidade do produto, somando a quantidade comprada
-    throw new Error('Método não implementado.');
+    const lucro = 0.5;
+    const precoVenda = compraProdutoDto.preco + (compraProdutoDto.preco * lucro);
+    const precoVendaArredondado = Math.round(precoVenda * 100) / 100;
+    const quantidadeAtualizada = produto.quantidade + compraProdutoDto.quantidade;
+    const totalCompra = compraProdutoDto.preco * compraProdutoDto.quantidade;
+    if(precoVenda > produto.precoVenda ) {
+      await this.prisma.produto.update({ where: { id }, data: { precoVenda: precoVendaArredondado, precoCompra: compraProdutoDto.preco}  });
+    }
+    const operacao = await this.prisma.operacao.create({ data: { ...compraProdutoDto, tipo: tipo, total: totalCompra, produtoId: id }})
+    const operacaoRetorna = await this.prisma.operacao.findUnique({ where: {id: operacao.id}, include: { produto: true }})
+    await this.prisma.produto.update({where: {id}, data: { quantidade: quantidadeAtualizada }});
+    if(!operacao){
+      throw new InternalServerErrorException('Não foi possível realizar a operação');
+    }
+    return operacaoRetorna;
+    
   }
 
   async venderProdutos(id: number, vendaProduto: VendaProdutoDto): Promise<Operacao> {
