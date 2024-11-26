@@ -90,7 +90,7 @@ export class ProdutoService {
     const operacao = await this.prisma.operacao.create({ data: {...vendaProduto, tipo: tipo, total: totalVenda, preco: produto.precoVenda, produtoId: id}});
     const operacaoRetorna = await this.prisma.operacao.findUnique({ where: {id: operacao.id}, include: { produto: true }});
     if(!operacao){
-      throw new InternalServerErrorException("Produto não encontrado");
+      throw new InternalServerErrorException("Não foi possível realizar a operação");
     }
     return operacaoRetorna;
   }
